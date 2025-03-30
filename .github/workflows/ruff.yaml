@@ -27,7 +27,7 @@ jobs:
           version: ${{ env.RUFF_VERSION }}
 
   check:
-    name: Check
+    name: Ruff Check
     runs-on: Ruff ubuntu-latest
     steps:
       - name: Checkout code
