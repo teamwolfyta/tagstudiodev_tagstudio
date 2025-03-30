@@ -33,9 +33,7 @@ jobs:
 
       - name: Flake Build
         uses: ./.github/actions/build-nix-flake
-
-      - name: Cachix
-        run: nix-fast-build --attic-cache ${{ env.CACHIX_CACHE_NAME }}
+        with:
+          extra-arguments: --attic-cache ${{ env.CACHIX_CACHE_NAME }}
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          
