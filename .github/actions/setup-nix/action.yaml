@@ -2,6 +2,10 @@ name: Setup Nix
 description: Sets up Nix environment for workflows
 
 inputs:
+  name:
+    description: The name of the Cachix cache
+    required: true
+    default: "teamwolfyta-testing"
   skipPush:
     description: Is this a pull request?
     required: false
@@ -20,6 +24,6 @@ runs:
     - name: Setup Cachix
       uses: cachix/cachix-action@v15
       with:
-        name: ${{ env.CACHIX_CACHE_NAME }}
+        name: ${{ inputs.name }}
         skipPush: ${{ inputs.skipPush }}
         authToken: ${{ inputs.CACHIX_AUTH_TOKEN }}
