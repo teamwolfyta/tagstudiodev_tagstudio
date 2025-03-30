@@ -25,15 +25,11 @@ jobs:
       - name: Setup Nix
         uses: ./.github/actions/setup-nix
 
-      # - name: Setup Cachix
-      #   uses: cachix/cachix-action@v15
-      #   with:
-      #     name: ${{ env.CACHIX_CACHE_NAME }}
-      #     authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: ${{ env.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Flake Build
         uses: ./.github/actions/build-nix-flake
-        with:
-          extra-arguments: --attic-cache ${{ env.CACHIX_CACHE_NAME }}
-        env:
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}

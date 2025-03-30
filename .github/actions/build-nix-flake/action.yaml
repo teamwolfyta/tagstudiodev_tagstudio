@@ -1,19 +1,13 @@
 name: Build Nix Flake
 description: Builds all packages and devShells in the flake
 
-inputs:
-  extra-arguments:
-    default: ""
-    description: Extra arguments to pass to nix-fast-build
-    required: false
-
 runs:
   using: composite
   steps:
     - name: Build packages
       shell: sh
-      run: nix-fast-build ${{ inputs.extra-arguments }} --skip-cached --no-nom --flake ".#packages"
+      run: nix-fast-build --skip-cached --no-nom --flake ".#packages"
 
     - name: Build devShells
       shell: sh
-      run: nix-fast-build ${{ inputs.extra-arguments }} --skip-cached --no-nom --flake ".#devShells"
+      run: nix-fast-build --skip-cached --no-nom --flake ".#devShells"
