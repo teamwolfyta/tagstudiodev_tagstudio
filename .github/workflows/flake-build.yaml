@@ -21,6 +21,7 @@ jobs:
         uses: ./.github/actions/setup-nix
         with:
           skipPush: ${{ github.event_name == 'pull_request' }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         
       - name: Install nix-fast-build
         run: nix profile install nixpkgs#nix-fast-build

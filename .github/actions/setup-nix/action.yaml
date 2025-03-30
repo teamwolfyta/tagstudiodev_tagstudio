@@ -6,6 +6,10 @@ inputs:
     description: Is this a pull request?
     required: false
     default: "true"
+  authToken:
+    description: The Cachix auth token
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -18,4 +22,4 @@ runs:
       with:
         name: ${{ env.CACHIX_CACHE_NAME }}
         skipPush: ${{ inputs.skipPush }}
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+        authToken: ${{ inputs.CACHIX_AUTH_TOKEN }}
