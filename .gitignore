@@ -268,3 +268,5 @@ TagStudio.ini
 
 result
 result-*
+
+!.github/actions/build-nix-flake

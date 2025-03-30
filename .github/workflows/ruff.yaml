@@ -1,31 +1,40 @@
----
-name: Ruff
+name: Ruff 
 
-on: [push, pull_request]
+on:
+  push: {}
+  pull_request: {}
+  workflow_dispatch: {}
 
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  RUFF_VERSION: 0.8.1
+  
 jobs:
-  ruff-format:
-    name: Run Ruff format
+  format:
+    name: Ruff Format
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Execute Ruff format
+      - name: Run Ruff format
         uses: chartboost/ruff-action@v1
         with:
-          version: 0.8.1
           args: format --check
+          version: ${{ env.RUFF_VERSION }}
 
-  ruff-check:
-    name: Run Ruff check
-    runs-on: ubuntu-latest
+  check:
+    name: Check
+    runs-on: Ruff ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Execute Ruff check
+      - name: Run Ruff check
         uses: chartboost/ruff-action@v1
         with:
-          version: 0.8.1
           args: check
+          version: ${{ env.RUFF_VERSION }}

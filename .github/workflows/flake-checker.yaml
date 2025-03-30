@@ -1,0 +1,23 @@
+name: Flake Checker
+
+on: 
+  push:
+    branches: 
+      - main
+  workflow_dispatch: {}
+
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}
+  
+jobs:
+  flake_checker:
+    name: Flake Checker
+    runs-on: ubuntu-latest
+    if: github.repository == 'teamwolfyta/tagstudiodev_tagstudio'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Flake Checker
+        uses: DeterminateSystems/flake-checker-action@main

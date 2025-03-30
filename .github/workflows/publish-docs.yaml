@@ -1,0 +1,43 @@
+name: Publish Docs
+
+on:
+  push:
+    branches: 
+      - main
+    paths:
+      - .github/workflows/publish-docs.yaml
+      - docs/**
+      - mkdocs.yml
+      - CHANGELOG.md
+  workflow_dispatch: {}
+
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}
+
+jobs:
+  publish_docs:
+    name: Publish Docs 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+        with:
+          extra-package: mkdocs
+
+      - name: Get cache ID
+        run: echo "MKDOCS_CACHE_ID=$(date --utc '+%V')" >> $GITHUB_ENV
+
+      - name: Upload cache
+        uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.MKDOCS_CACHE_ID }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+              
+      - name: Publish Docs
+        run: mkdocs gh-deploy --force

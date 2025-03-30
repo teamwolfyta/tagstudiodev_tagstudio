@@ -1,29 +1,31 @@
----
-name: pytest
+name: PyTest
 
-on: [push, pull_request]
+on:
+  push: {}
+  pull_request: {}
+  workflow_dispatch: {}
+  
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  PYTEST_COVERAGE_ARTIFACT_NAME: pytest-coverage.xml
 
 jobs:
   pytest:
-    name: Run pytest
-    runs-on: ubuntu-24.04
-
+    name: PyTest
+    runs-on: ubuntu-24.04 # NOTE: This is pinned for some reason!
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: ./.github/actions/setup-python
         with:
-          python-version: '3.12'
-          cache: pip
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade uv
-          uv pip install --system .[pytest]
-
-      - name: Install system dependencies
+          extra-package: pytest
+      
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
@@ -42,33 +44,30 @@ jobs:
             libyaml-dev \
             x11-utils
 
-      - name: Execute pytest
-        run: |
-          xvfb-run pytest --cov-report xml --cov=tagstudio
+      - name: Run PyTest
+        run: xvfb-run pytest --cov-report xml --cov=tagstudio
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: ${{ env.PYTEST_COVERAGE_ARTIFACT_NAME }}
           path: coverage.xml
 
-  coverage:
-    name: Check coverage
-    runs-on: ubuntu-latest
-    needs: pytest
-
+  report_coverage:
+    name: Report Coverage
+    runs-on: ubuntu-latest 
     steps:
-      - name: Fetch coverage
+      - name: Download coverage
         uses: actions/download-artifact@v4
         with:
-          name: coverage
+          name: ${{ env.PYTEST_COVERAGE_ARTIFACT_NAME }}
 
-      - name: Check coverage
+      - name: Report Coverage
         uses: yedpodtrzitko/coverage@main
         with:
-          thresholdAll: 0.4
-          thresholdNew: 0.4
-          thresholdModified: 0.4
           coverageFile: coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
           sourceDir: tagstudio/src
+          thresholdAll: 0.4
+          thresholdModified: 0.4
+          thresholdNew: 0.4
+          token: ${{ secrets.GITHUB_TOKEN }}
