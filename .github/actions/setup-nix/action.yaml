@@ -5,7 +5,7 @@ inputs:
   name:
     description: The name of the Cachix cache
     required: true
-    default: "teamwolfyta-testing"
+    default: teamwolfyta-testing
   skipPush:
     description: Is this a pull request?
     required: false
