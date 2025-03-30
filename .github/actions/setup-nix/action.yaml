@@ -26,4 +26,4 @@ runs:
       with:
         name: ${{ inputs.name }}
         skipPush: ${{ inputs.skipPush }}
-        authToken: ${{ inputs.CACHIX_AUTH_TOKEN }}
+        authToken: ${{ inputs.authToken }}
