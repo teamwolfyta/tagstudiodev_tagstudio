@@ -20,4 +20,4 @@ runs:
 
     - name: Install nix-fast-build
       shell: sh 
-      run: nix profile install nixpkgs#nix-fast-build
+      run: nix-shell -p nix-fast-build
