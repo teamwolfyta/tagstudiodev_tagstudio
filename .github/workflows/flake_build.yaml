@@ -8,7 +8,7 @@ on:
   workflow_dispatch: {} 
           
 jobs:
-  flake-check:
+  flake-build:
     runs-on: ubuntu-latest
     if: github.repository == 'teamwolfyta/tagstudiodev_tagstudio'
     steps:
