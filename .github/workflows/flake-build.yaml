@@ -19,6 +19,8 @@ jobs:
 
       - name: Setup Nix
         uses: ./.github/actions/setup-nix
+        with:
+          skipPush: ${{ github.event_name == 'pull_request' }}
         
       - name: Install nix-fast-build
         run: nix profile install nixpkgs#nix-fast-build
@@ -26,5 +28,8 @@ jobs:
       - name: Flake Check
         run: nix-fast-build --skip-cached --no-nom
 
-      - name: Flake Build 
-        uses: ./.github/actions/build-nix-flake
+      - name: Build packages
+        run: nix-fast-build --skip-cached --no-nom --flake ".#packages"
+  
+      - name: Build devShells
+        run: nix-fast-build --skip-cached --no-nom --flake ".#devShells"

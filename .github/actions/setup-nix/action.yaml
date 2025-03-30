@@ -1,20 +1,21 @@
 name: Setup Nix
 description: Sets up Nix environment for workflows
 
+inputs:
+  skipPush:
+    description: Is this a pull request?
+    required: false
+    default: "true"
+
 runs:
   using: composite
   steps:
     - name: Install Nix
-      uses: nixbuild/nix-quick-install-action@v30
+      uses: cachix/install-nix-action@v25
 
-    - name: Cache Nix store
-      uses: nix-community/cache-nix-action@v6
+    - name: Setup Cachix
+      uses: cachix/cachix-action@v15
       with:
-        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
-        restore-prefixes-first-match: nix-${{ runner.os }}-
-        gc-max-store-size-linux: 1G
-        purge: true
-        purge-prefixes: nix-${{ runner.os }}-
-        purge-created: 0
-        purge-primary-key: never
-
+        name: ${{ env.CACHIX_CACHE_NAME }}
+        skipPush: ${{ inputs.skipPush }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
