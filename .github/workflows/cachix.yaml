@@ -25,6 +25,9 @@ jobs:
       - name: Setup Nix
         uses: ./.github/actions/setup-nix
 
+      - name: Install nix-fast-build
+        run: nix profile install nixpkgs#nix-fast-build
+  
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:

@@ -19,7 +19,10 @@ jobs:
 
       - name: Setup Nix
         uses: ./.github/actions/setup-nix
-
+        
+      - name: Install nix-fast-build
+        run: nix profile install nixpkgs#nix-fast-build
+        
       - name: Flake Check
         run: nix-fast-build --skip-cached --no-nom
 
