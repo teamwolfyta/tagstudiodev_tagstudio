@@ -1,0 +1,32 @@
+name: Flake Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+  workflow_dispatch: {} 
+          
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    if: github.repository == 'teamwolfyta/tagstudiodev_tagstudio'
+    steps:
+      - name: Checking out repository...
+        uses: actions/checkout@v4
+
+      - name: Installing and configuring the nix package manager...
+        uses: cachix/install-nix-action@v31
+
+      - name: Setting up packages...
+        run: |
+          nix profile install nixpkgs#nix-fast-build
+
+      - name: Running `nix flake check`...
+        run: nix-fast-build --skip-cached --no-nom
+
+      - name: Running `nix build ...`...
+        run: nix-fast-build --skip-cached --no-nom --flake ".#packages"
+
+      - name: Running `nix develop...`...
+        run: nix-fast-build --skip-cached --no-nom --flake ".#devShells"
