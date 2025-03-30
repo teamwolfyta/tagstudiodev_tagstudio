@@ -6,8 +6,8 @@ runs:
   steps:
     - name: Build packages
       shell: sh
-      run: nix-fast-build --skip-cached --no-nom --flake ".#packages"
+      run: nix run github:Mic92/nix-fast-build --skip-cached --no-nom --flake ".#packages"
 
     - name: Build devShells
       shell: sh
-      run: nix-fast-build --skip-cached --no-nom --flake ".#devShells"
+      run: nix run github:Mic92/nix-fast-build --skip-cached --no-nom --flake ".#devShells"
