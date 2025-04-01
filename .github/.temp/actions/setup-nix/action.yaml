@@ -1,0 +1,29 @@
+name: Setup Nix
+description: Sets up Nix environment for workflows
+
+inputs:
+  name:
+    description: Cachix cache name
+    required: true
+    default: teamwolfyta-testing
+  skipPush:
+    description: Skip pushing to cache (true for PRs)
+    required: false
+    default: "true"
+  authToken:
+    description: Cachix authentication token
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Install Nix
+      uses: cachix/install-nix-action@v25
+
+    - name: Setup Cachix
+      uses: cachix/cachix-action@v16
+      with:
+        name: ${{ inputs.name }}
+        skipPush: ${{ inputs.skipPush }}
+        authToken: ${{ inputs.authToken }}

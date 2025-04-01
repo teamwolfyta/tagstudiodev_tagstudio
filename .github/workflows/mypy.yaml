@@ -1,6 +1,6 @@
-name: MyPy 
+name: MyPy
 
-on:
+on: 
   push: {}
   pull_request: {}
   workflow_dispatch: {}
@@ -9,26 +9,24 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
 
+env:
+  REVIEWDOG_VERSION: latest
+
 jobs:
   mypy:
-    name: MyPy
+    name: Run MyPy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Reviewdog
-        uses: reviewdog/action-setup@v1
+      - uses: ./.github/actions/setup-python
         with:
-          reviewdog_version: latest
+          python-packages: mypy
 
-      - name: Setup Python
-        uses: ./.github/actions/setup-python
+      - uses: reviewdog/action-setup@v1
         with:
-          extra-package: mypy
-
-      - name: Run MyPy
-        uses: tsuyoshicho/action-mypy@v4
+          reviewdog_version: ${{ env.REVIEWDOG_VERSION }}
+        
+      - uses: tsuyoshicho/action-mypy@v4
         with:
           fail_on_error: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}

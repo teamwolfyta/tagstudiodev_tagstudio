@@ -11,10 +11,10 @@ concurrency:
   
 jobs:
   flake_build:
-    name: Flake Build
+    name: Build Nix Flake
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Nix
@@ -26,11 +26,11 @@ jobs:
       - name: Install nix-fast-build
         run: nix profile install nixpkgs#nix-fast-build
         
-      - name: Flake Check
+      - name: Check flake
         run: nix-fast-build --skip-cached --no-nom
 
       - name: Build packages
         run: nix-fast-build --skip-cached --no-nom --flake ".#packages"
   
-      - name: Build devShells
+      - name: Build dev shells
         run: nix-fast-build --skip-cached --no-nom --flake ".#devShells"

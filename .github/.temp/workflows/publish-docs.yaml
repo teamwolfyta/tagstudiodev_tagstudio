@@ -16,23 +16,28 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  publish-dcs:
-    name: Publish Docs
+  publish_docs:
+    name: Deploy Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: ./.github/actions/setup-python
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
         with:
-          python-packages: mkdocs
+          extra-package: mkdocs
 
-      - run: echo "MKDOCS_CACHE_ID=$(date --utc '+%V')" >> $GITHUB_ENV
-      
-      - uses: actions/cache@v4
+      - name: Generate cache ID
+        run: echo "MKDOCS_CACHE_ID=$(date --utc '+%V')" >> $GITHUB_ENV
+
+      - name: Setup cache
+        uses: actions/cache@v4
         with:
           key: mkdocs-material-${{ env.MKDOCS_CACHE_ID }}
           path: .cache
           restore-keys: |
             mkdocs-material-
-
-      - run: mkdocs gh-deploy --force
+              
+      - name: Deploy to GitHub Pages
+        run: mkdocs gh-deploy --force

@@ -1,0 +1,26 @@
+name: Flake Checker
+
+on: 
+  push:
+    branches: 
+      - main
+  workflow_dispatch: {}
+
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}
+  
+jobs:
+  flake_checker:
+    name: Check Nix Flake
+    runs-on: ubuntu-latest
+    if: github.repository == 'teamwolfyta/tagstudiodev_tagstudio'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Nix
+        uses: ./.github/actions/setup-nix
+
+      - name: Validate flake
+        uses: DeterminateSystems/flake-checker-action@main

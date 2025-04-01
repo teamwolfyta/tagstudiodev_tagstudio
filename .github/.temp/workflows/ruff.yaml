@@ -1,4 +1,4 @@
-name: Ruff
+name: Ruff 
 
 on:
   push: {}
@@ -11,26 +11,30 @@ concurrency:
 
 env:
   RUFF_VERSION: 0.8.1
-
+  
 jobs:
-  ruff-check:
-    name: Run Ruff Check
+  format:
+    name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: astral-sh/ruff-action@v3
+      - name: Run formatter
+        uses: chartboost/ruff-action@v1
         with:
-          version: ${{ env.RUFF_VERSION }}
-
-  ruff-format:
-    name: Run Ruff Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: astral-sh/ruff-action@v3
-        with:
-          version: ${{ env.RUFF_VERSION }}
           args: format --check
+          version: ${{ env.RUFF_VERSION }}
 
+  check:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run linter
+        uses: chartboost/ruff-action@v1
+        with:
+          args: check
+          version: ${{ env.RUFF_VERSION }}

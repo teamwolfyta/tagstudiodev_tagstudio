@@ -1,0 +1,79 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        description: 'Platform to build for (linux, macos, macos-arm, windows)'
+        type: string
+        required: true
+      portable:
+        description: 'Whether to build portable version'
+        type: boolean
+        default: false
+      python_version:
+        description: 'Python version to use'
+        type: string
+        default: '3.12'
+
+jobs:
+  build:
+    name: Build for ${{ inputs.platform }}
+    runs-on: ${{ 
+      inputs.platform == 'linux' && 'ubuntu-22.04' ||
+      inputs.platform == 'macos' && 'macos-13' || 
+      inputs.platform == 'macos-arm' && 'macos-14' || 'windows-2019' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-python
+        with:
+          python-packages: pyinstaller
+
+      - id: variables
+        shell: bash
+        run: |
+          PORTABLE_SUFFIX="${{ inputs.portable && '_portable' || '' }}"
+          
+          case "${{ inputs.platform }}" in
+            linux)
+              echo "os_name=linux_x86_64" >> $GITHUB_OUTPUT
+              echo "source_path=dist/tagstudio" >> $GITHUB_OUTPUT
+              ;;
+            macos)
+              echo "os_name=macos_x86_64" >> $GITHUB_OUTPUT
+              echo "source_path=dist/TagStudio.app" >> $GITHUB_OUTPUT
+              ;;
+            macos-arm)
+              echo "os_name=macos_aarch64" >> $GITHUB_OUTPUT
+              echo "source_path=dist/TagStudio.app" >> $GITHUB_OUTPUT
+              ;;
+            windows)
+              echo "os_name=windows_x86_64" >> $GITHUB_OUTPUT
+              echo "source_path=dist/TagStudio${{ inputs.portable && '.exe' || '' }}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          echo "artifact_name=tagstudio_$(echo "os_name" | cut -d= -f2)${PORTABLE_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "portable_suffix=${PORTABLE_SUFFIX}" >> $GITHUB_OUTPUT
+
+      - run: pyinstaller tagstudio.spec ${{ inputs.portable && '-- --portable' || '' }}
+
+      - if: inputs.platform != 'windows'
+        run: |
+          tar czfC \
+            dist/tagstudio_${{ steps.variables.outputs.os_name }}${{ steps.variables.outputs.portable_suffix }}.tar.gz \
+            dist \
+            ${{ endsWith(steps.variables.outputs.source_path, '.app') && 'TagStudio.app' || 'tagstudio' }}
+
+      - if: inputs.platform == 'windows'
+        run: |
+          Compress-Archive \
+            -Path ${{ steps.variables.outputs.source_path }} \
+            -DestinationPath dist/tagstudio_${{ steps.variables.outputs.os_name }}${{ steps.variables.outputs.portable_suffix }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tagstudio_${{ steps.variables.outputs.os_name }}${{ steps.variables.outputs.portable_suffix }}
+          path: dist/tagstudio_*.*

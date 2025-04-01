@@ -1,0 +1,37 @@
+name: MyPy 
+
+on:
+  push: {}
+  pull_request: {}
+  workflow_dispatch: {}
+
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  REVIEWDOG_VERSION: latest
+
+jobs:
+  mypy:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+        with:
+          extra-package: mypy
+
+      - name: Setup Reviewdog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: ${{ env.REVIEWDOG_VERSION }}
+
+      - name: Run type checker
+        uses: tsuyoshicho/action-mypy@v4
+        with:
+          fail_on_error: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}

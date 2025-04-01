@@ -6,129 +6,20 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+*
   workflow_dispatch: {}
 
+concurrency: 
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
-  build_linux: 
+  build:
+    name: Build ${{ matrix.display-name}}
     strategy:
       matrix:
+        os: [ubuntu-22.04, macos-13, macos-14, windows-2019]
         build-type: ['', portable]
         include:
-          - build-type: ''
-            build-flag: ''
-            suffix: ''
-          - build-type: portable
-            build-flag: --portable
-            suffix: _portable
-    name: Build Linux ${{ matrix.build-type }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+          
+    uses: ./.github/workflows/build.yaml
+    with: {}
 
-      - name: Setup Python
-        uses: ./.github/actions/setup-python
-        with:
-          extra-package: pyinstaller
-
-      - name: Build package
-        run: |
-          pyinstaller tagstudio.spec -- ${{ matrix.build-flag }}
-          tar czfC dist/tagstudio_linux_x86_64${{ matrix.suffix }}.tar.gz dist tagstudio
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tagstudio_linux_x86_64${{ matrix.suffix }}
-          path: dist/tagstudio_linux_x86_64${{ matrix.suffix }}.tar.gz
-
-  build_macos: 
-    strategy:
-      matrix:
-        os-version: ['13', '14']
-        include:
-          - os-version: '13'
-            arch: x86_64
-          - os-version: '14'
-            arch: aarch64
-    name: Build MacOS ${{ matrix.os-version }} (${{ matrix.arch }})
-    runs-on: macos-${{ matrix.os-version }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: ./.github/actions/setup-python
-        with:
-          extra-package: pyinstaller
-
-      - name: Build package
-        run: |
-          pyinstaller tagstudio.spec
-          tar czfC dist/tagstudio_macos_${{ matrix.arch }}.tar.gz dist TagStudio.app
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tagstudio_macos_${{ matrix.arch }}
-          path: dist/tagstudio_macos_${{ matrix.arch }}.tar.gz
-  
-  build_windows:
-    strategy:
-      matrix:
-        build-type: ['', portable]
-        include:
-          - build-type: ''
-            build-flag: ''
-            suffix: ''
-            file-end: ''
-          - build-type: portable
-            build-flag: --portable
-            suffix: _portable
-            file-end: .exe
-    name: Build Windows ${{ matrix.build-type }}
-    runs-on: windows-2019
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: ./.github/actions/setup-python
-        with:
-          extra-package: pyinstaller
-
-      - name: Build package
-        run: |
-          PyInstaller tagstudio.spec -- ${{ matrix.build-flag }}
-          Compress-Archive -Path dist/TagStudio${{ matrix.file-end }} -DestinationPath dist/tagstudio_windows_x86_64${{ matrix.suffix }}.zip
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tagstudio_windows_x86_64${{ matrix.suffix }}
-          path: dist/tagstudio_windows_x86_64${{ matrix.suffix }}.zip
-
-  publish:
-    name: Publish ${{ github.ref_name }} Release
-    runs-on: ubuntu-latest
-    needs: 
-      - build_linux
-      - build_macos
-      - build_windows
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-
-      - name: Publish Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            tagstudio_linux_x86_64/*
-            tagstudio_linux_x86_64_portable/*
-            tagstudio_macos_x86_64/*
-            tagstudio_macos_aarch64/*
-            tagstudio_windows_x86_64/*
-            tagstudio_windows_x86_64_portable/*
+  publish: {}
