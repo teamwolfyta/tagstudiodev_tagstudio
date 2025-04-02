@@ -4,15 +4,12 @@ description: Sets up Nix environment for workflows
 inputs:
   name:
     description: The name of the Cachix cache
-    required: true
     default: teamwolfyta-testing
   skipPush:
     description: Is this a pull request?
-    required: false
     default: "true"
   authToken:
     description: The Cachix auth token
-    required: false
     default: ""
 
 runs:
